@@ -1,40 +1,47 @@
 const router = require("express").Router();
 const db = require("../models");
+const path = require("path");
+const express = require("express");
+const logger = require("morgan");
+const mongoose = require("mongoose");
 
-db.Workout.create({ name: "Workout Tracker" })
-  .then((Workout) => {})
+const app = express();
+
+db.Workout.create({ name: "Campus Library" })
+  .then((dbWorkout) => {
+    console.log(dbWorkout);
+  })
   .catch(({ message }) => {
     console.log(message);
   });
 
-router.post("/api/workouts", ({ body }, res) => {
-  db.Excercise.create(body)
+app.post("/submit", ({ body }, res) => {
+  db.Book.create(body)
+    //promise gives us the object of the newly created book
+    //push new book into the library
+    //new true returns the updated library vs the unupdated one
     .then(({ _id }) =>
-      db.Workout.findOneAndUpdate(
-        {},
-        { $push: { excercises: _id } },
-        { new: true }
-      )
+      db.Library.findOneAndUpdate({}, { $push: { books: _id } }, { new: true })
     )
-    .then((Workout) => {
-      res.json(Workout);
+    .then((dbLibrary) => {
+      res.json(dbLibrary);
     })
     .catch((err) => {
       res.json(err);
     });
 });
 
-router.get("/api/workouts", (req, res) => {
-  db.Workout.find({})
-    .then((dbWorkout) => {
-      res.json(dbWorkout);
+app.get("/books", (req, res) => {
+  db.Book.find({})
+    .then((dbBook) => {
+      res.json(dbBook);
     })
     .catch((err) => {
       res.json(err);
     });
 });
 
-router.get("/library", (req, res) => {
+app.get("/library", (req, res) => {
   db.Library.find({})
     .then((dbLibrary) => {
       res.json(dbLibrary);
@@ -44,7 +51,7 @@ router.get("/library", (req, res) => {
     });
 });
 
-router.get("/populated", (req, res) => {
+app.get("/populated", (req, res) => {
   db.Library.find({})
     .populate("books")
     .then((dbLibrary) => {
