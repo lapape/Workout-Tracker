@@ -19,22 +19,23 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/populate", {
   useNewUrlParser: true,
 });
 
-db.Library.create({ name: "Campus Library" })
-  .then((dbLibrary) => {})
+db.Workout.create({ name: "Workout Tracker" })
+  .then((Workout) => {})
   .catch(({ message }) => {
     console.log(message);
   });
 
-app.post("/submit", ({ body }, res) => {
-  db.Book.create(body)
-    //promise gives us the object of the newly created book
-    //push new book into the library
-    //new true returns the updated library vs the unupdated one
+app.post("/api/workouts", ({ body }, res) => {
+  db.Excercise.create(body)
     .then(({ _id }) =>
-      db.Library.findOneAndUpdate({}, { $push: { books: _id } }, { new: true })
+      db.Workout.findOneAndUpdate(
+        {},
+        { $push: { excercises: _id } },
+        { new: true }
+      )
     )
-    .then((dbLibrary) => {
-      res.json(dbLibrary);
+    .then((Workout) => {
+      res.json(Workout);
     })
     .catch((err) => {
       res.json(err);
