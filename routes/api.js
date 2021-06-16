@@ -1,14 +1,6 @@
 const router = require("express").Router();
 const db = require("../models");
 
-// db.Workout.create({ name: "Campus Library" })
-//   .then((dbWorkout) => {
-//     console.log(dbWorkout);
-//   })
-//   .catch(({ message }) => {
-//     console.log(message);
-//   });
-
 //find most recent workout
 router.get("/api/workouts", (req, res) => {
   db.Workout.findOne({})
@@ -52,7 +44,8 @@ router.post("/api/workouts", ({ body }, res) => {
 
 //get workouts from last 7 days
 router.get("/api/workouts/range", (req, res) => {
-  db.Workout.find({})
+  db.Workout.aggregate()
+    .addFields({ totalDuration: { $sum: "$exercises.duratoin" } })
     .limit(7)
     .sort({ day: -1 })
     .then((dbWorkout) => {
