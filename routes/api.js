@@ -3,7 +3,8 @@ const db = require("../models");
 
 //find most recent workout
 router.get("/api/workouts", (req, res) => {
-  db.Workout.findOne({})
+  db.Workout.aggregate()
+    .addFields({ totalDuration: { $sum: "$exercises.duration" } })
     .sort({ day: -1 })
     .then((dbWorkout) => {
       res.json(dbWorkout);
@@ -45,7 +46,7 @@ router.post("/api/workouts", ({ body }, res) => {
 //get workouts from last 7 days
 router.get("/api/workouts/range", (req, res) => {
   db.Workout.aggregate()
-    .addFields({ totalDuration: { $sum: "$exercises.duratoin" } })
+    .addFields({ totalDuration: { $sum: "$exercises.duration" } })
     .limit(7)
     .sort({ day: -1 })
     .then((dbWorkout) => {
