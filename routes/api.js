@@ -5,7 +5,6 @@ const db = require("../models");
 router.get("/api/workouts", (req, res) => {
   db.Workout.aggregate()
     .addFields({ totalDuration: { $sum: "$exercises.duration" } })
-    .sort({ day: -1 })
     .then((dbWorkout) => {
       res.json(dbWorkout);
     })
@@ -16,10 +15,9 @@ router.get("/api/workouts", (req, res) => {
 
 //add one exercise
 router.put("/api/workouts/:id", (req, res) => {
-  db.Workout.findOneAndUpdate(
-    { _id: req.params.id },
+  db.Workout.findByIdAndUpdate(
+    req.params.id,
     {
-      // $inc: {totalDuration: req.body.duration},
       $push: { exercises: req.body },
     },
     { new: true }
